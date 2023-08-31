@@ -11,10 +11,13 @@ import cv2 as cv
 # Resolver bug seguimetação (Entregar classroom domingo 23:59)
 # tentar implementar o Keras apenas na camiseta
 # Tirar fotos para o treinamento do Keras
-# Prepara os documentos para troca
+# Fazer o teste com a camisa girada em +45 e -45 graus
+# Treinamento da segmentação (Utilizando o keras)
+# Google Colab
+# Remover Anaconda
 
 inicio = time.time()
-caminhoImagem = str(Path('Teste/Teste1Ponto1.jpg'))
+caminhoImagem = str(Path('Teste/Teste1Ponto4.jpg'))
 caminhoEstampa = str(Path('Estampas/pikachu.png'))
 # pegando a imagem e abrindo numa janela
 imagem = cv.imread(caminhoImagem)

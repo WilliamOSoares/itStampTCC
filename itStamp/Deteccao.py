@@ -211,11 +211,11 @@ class Deteccao:
         cv.waitKey(0)
         #print(listOfDots)
         #print(dotRef)
-        list = Deteccao.correlacaoPontos(listOfDots)
+        #list = Deteccao.correlacaoPontos(listOfDots)
         lista = Deteccao.correlacao(listOfDots)
         #Deteccao.ordenaLista(listOfDots, dotRef)        
         #print(list)
-        return list
+        return lista
 
     #def ordenaLista (lista, ref):
         listaOrdenada=[]
@@ -329,9 +329,27 @@ class Deteccao:
         imgAux = np.zeros(((newResolution[0] - ref[0])+1, (newResolution[1] - ref[1])+1),np.uint8)
         targetShape = GI.calculaPontosImagem(GI,imgAux)
         pts = Deteccao.subtrairCoordenadas(lista, ref[0],ref[1])
+        print("Pontos subtraidos:")
         print(pts)
+        print("Grid da imagem para correlacionar:")
         print(targetShape)
+        pts = Deteccao.custom_sort(pts)
+        #pts2 = [[0, 0], [10, 78], [19, 147], [13, 219], [71, -2], [77, 75], [79, 152], [78, 230], [142, -4], [146, 73], [147, 152], [146, 225], [207, -7], [202, 64], [201, 134], [196, 208]]
         Deteccao.correlacaoProcrustes(pts, targetShape)
+        return Deteccao.somarCoordenadas(pts, ref[0],ref[1])
+    
+    def custom_sort(pontos):
+        # Ordenar por x
+        pontos.sort(key=lambda point: point[0])
+
+        sorted_pts = []
+        for i in range(0, len(pontos), 4):
+            group = pontos[i:i+4]
+            # Ordenar grupo por y
+            group.sort(key=lambda point: point[1])
+            sorted_pts.extend(group)
+
+        return sorted_pts
 
     def subtrairCoordenadas(ptsA, subX, subY):
         # subtrai subX de todas as coordenadas x e subY de todas as coordenadas y
@@ -340,6 +358,14 @@ class Deteccao:
             ptsA[i][1] -= subY
         return ptsA
     
+    def somarCoordenadas(ptsA, sumX, sumY):
+        # subtrai subX de todas as coordenadas x e subY de todas as coordenadas y
+        for i in range(len(ptsA)):
+            ptsA[i][0] += sumX
+            ptsA[i][1] += sumY
+        return ptsA
+
+
     def correlacaoProcrustes(set1, set2):
         # Aplicando a análise de Procrustes em ambas as matrizes.
         set1 = np.asarray(set1)
@@ -358,9 +384,11 @@ class Deteccao:
         for i in range(set1.shape[0]):
             ax.plot([set1[i,0], set2[i,0]], [set1[i,1], set2[i,1]], 'k-', lw=1)
             # posso fazer o array ordenado aqui
+        plt.gca().invert_yaxis()
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.legend()
+        plt.title('Correlação dos pontos')
 
         # Exibindo o gráfico.
         plt.show()

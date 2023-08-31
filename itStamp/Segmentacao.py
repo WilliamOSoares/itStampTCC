@@ -16,7 +16,7 @@ class Segmentacao:
         mask1 = cv.inRange(imagem, low_white, high_white) 
         mask1 = cv.morphologyEx(mask1,cv.MORPH_ERODE,cv.getStructuringElement(cv.MORPH_CROSS,(3,3)))
         res = cv.bitwise_and(imagem1, mask1)
-        #cv.imshow('Imagem com foco na camisa', res)
+        cv.imshow('Imagem com foco na camisa', mask1)
         #cv.waitKey(0)
 
         return res
@@ -32,7 +32,7 @@ class Segmentacao:
         blurred = cv.medianBlur(npNorm, 5)
         blurred2 = cv.morphologyEx(blurred,cv.MORPH_ERODE, cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5),(3,3)))
         #cv.imshow('B2', blurred2)
-        thresh = cv.threshold(-blurred2, 180, 255, cv.THRESH_BINARY)[1] # Thresh dos pontos
+        thresh = cv.threshold(-blurred2, 90, 255, cv.THRESH_BINARY)[1] # Thresh dos pontos
         # cv.imshow('B5ee', thresh)
         # Find the contours in the image
         contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
