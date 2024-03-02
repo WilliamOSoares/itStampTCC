@@ -5,7 +5,7 @@ class GridImagem:
     # Mostra os 16 pontos distribuidos na imagem
     def mostraPontosImagem(self, imagem, listaPontos):
         for pontos in listaPontos:
-            cv.circle(imagem,pontos,3,(0,255,255),-1)
+            cv.circle(imagem,pontos,12,(0,0,255),-1)
         return imagem
 
     # Distribui 16 pontos homogeneos na imagem e retorna a lista dos pontos

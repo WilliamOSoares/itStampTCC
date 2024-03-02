@@ -8,31 +8,30 @@ class DistorcaoComColagem:
     def alpha_blend(background:np.ndarray, foreground:np.ndarray, alpha:np.ndarray):
         b = np.float32(background.copy())
         f = np.float32(foreground.copy())
-        a = np.float32(alpha.copy())
+        a = np.float32(alpha.copy()) # alpha_blend(imgCamInpaint,imgEstDistorcidaMask,imgEstAlpha)
         imgEstSombra = ((b*1.5) * (f*0.5)) / 255
         imgCamisaBuracoEstampa = np.float32(cv.bitwise_and(background, ~alpha, mask=None))
-        cv.imshow("img", imgCamisaBuracoEstampa)
-        result = cv.add(imgCamisaBuracoEstampa, imgEstSombra)
-        cv.imshow("result", result)
+        #cv.imshow("img", imgCamisaBuracoEstampa)
+
+        result = cv.add(imgCamisaBuracoEstampa, imgEstSombra)        
         return np.uint8(result)
     
     def aplicarEstampaCamisa(caminhoEstampa, imgCamInpaint, pontos):
         # Redimencionando as imagens 
-        imgEstampa = cv.imread(caminhoEstampa,cv.IMREAD_UNCHANGED)
-        # tam = np.array(imgCamInpaint).size
-        # print(str(tam)[:3])
-        # imgEstResize = cv.resize(imgEstampa, (int(str(tam)[3:]),int(str(tam)[:3])),interpolation=cv.INTER_CUBIC)
+        imgEstampa = cv.imread(caminhoEstampa,cv.IMREAD_UNCHANGED)        
         imgEstResize = cv.resize(imgEstampa, (360,640),interpolation=cv.INTER_CUBIC)
         tps = cv.createThinPlateSplineShapeTransformer()
         #cv.imshow("estampa", imgEstResize)
+
         gdImg = GridImagem()
-        # targetPoints: São os pontos da estampa.
-        # targetPoints = np.array(gdImg.calculaPontosImagem(imgEstResize),np.float32)
         targetPoints = np.float32(gdImg.calculaPontosImagemInv(imgEstResize))
+        # imGrid = cv.imread(caminhoEstampa)
+        # pt = gdImg.calculaPontosImagemInv(imGrid)
+        # imgGrid = gdImg.mostraPontosImagem(imGrid,pt)
+        # cv.imshow("estampaGrid", imgGrid)
+
         # sourcePoints: São os pontos na camisa.
         sourcePoints = np.asarray(pontos)
-        # print(sourcePoints)
-        # print(targetPoints)
         # sourcePoints = np.array([[174,202],#1.1
         #                          [183,281],#2.1
         #                          [193,350],
@@ -60,8 +59,7 @@ class DistorcaoComColagem:
             matches.append(cv.DMatch(i,i,0))
 
         tps.estimateTransformation(sourcePoints, targetPoints, matches)
-        imgEstDistorcida = tps.warpImage(imgEstResize)
-        #cv.namedWindow("Estampa out",cv.WINDOW_AUTOSIZE)
+        imgEstDistorcida = tps.warpImage(imgEstResize)       
         #cv.imshow("Estampa out", imgEstDistorcida) 
 
         imgEstAlpha = cv.merge((imgEstDistorcida[...,3],
@@ -69,19 +67,7 @@ class DistorcaoComColagem:
             imgEstDistorcida[...,3]))
 
         imgEstDistorcidaMask = cv.bitwise_and(imgEstAlpha,imgEstDistorcida[...,[0,1,2]])
-        # cv.imshow("img distorcida", imgEstDistorcidaMask)
-        # cv.imshow("img alpha", imgEstAlpha)
-        # cv.imshow("img",imgCamInpaint)
-        # cv.waitKey(0)
+
         imgEstAlphaBend = DistorcaoComColagem.alpha_blend(imgCamInpaint,imgEstDistorcidaMask,imgEstAlpha)
-
-        #cv.namedWindow("imgEstDistorcida out",cv.WINDOW_AUTOSIZE)
-        #cv.imshow("imgEstDistorcida out", imgEstDistorcida) 
-
-        #cv.namedWindow("imgEstAlphaBend",cv.WINDOW_AUTOSIZE)
-        #cv.imshow("imgEstAlphaBend", imgEstAlphaBend) 
-        
-        #img3 = cv.drawMatches(teste,kp1,imaSeg,kp2,matches[:10], outImg=None,flags=2)
-        #cv.imshow("Com orb feature matching", img3)
 
         return imgEstAlphaBend
